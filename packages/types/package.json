@@ -1,0 +1,58 @@
+{
+  "name": "@factagora/types",
+  "version": "0.1.0",
+  "description": "Factagora 공유 TypeScript 타입 (Graph, Timeline, SSE, Chat, Agent)",
+  "keywords": [
+    "factagora",
+    "typescript",
+    "types",
+    "graph",
+    "timeline",
+    "sse",
+    "chat",
+    "agent"
+  ],
+  "author": "Factagora Team",
+  "license": "MIT",
+  "packageManager": "pnpm@10.30.2",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@factagora/tsconfig": "workspace:*",
+    "tsup": "^8.3.5",
+    "typescript": "^5.9.3"
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/factagora/factagora-graph-sdk.git",
+    "directory": "packages/types"
+  }
+}
