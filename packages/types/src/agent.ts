@@ -156,7 +156,7 @@ export interface AgentRegistry {
   /**
    * Agent ID → Adapter 매핑
    */
-  adapters: Map<string, AgentAdapter>
+  adapters: Record<string, AgentAdapter>
 
   /**
    * Agent 등록
