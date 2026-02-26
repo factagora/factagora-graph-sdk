@@ -1,0 +1,7 @@
+{
+  "name": "@factagora/tsconfig",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Factagora 공유 TypeScript 설정",
+  "files": ["base.json", "react.json"]
+}
