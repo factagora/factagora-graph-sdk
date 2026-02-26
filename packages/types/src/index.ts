@@ -52,7 +52,7 @@ export type {
 export type { ChatSession, ChatMessage, ChatRequest } from './chat'
 
 // ─── Enum 타입 ─────────────────────────────────────────────────
-export type { SearchMode, QueryType, FactBlockType } from './enums'
+export type { SearchMode, QueryType, FactBlockType, StreamingStatus } from './enums'
 
 // ─── Agent 통합 타입 ───────────────────────────────────────────
 export type {

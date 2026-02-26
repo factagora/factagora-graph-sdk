@@ -57,3 +57,16 @@ export type FactBlockType =
   | 'measurement'
   | 'visit'
   | 'unknown'
+
+// ─── 스트리밍 상태 ──────────────────────────────────────────────
+
+/**
+ * 스트리밍 상태 (챗봇 UI)
+ *
+ * - `idle`: 대기 중
+ * - `analyzing`: 질문 분석 중
+ * - `searching`: 검색 중
+ * - `expanding`: 그래프 확장 중
+ * - `generating`: 응답 생성 중
+ */
+export type StreamingStatus = 'idle' | 'analyzing' | 'searching' | 'expanding' | 'generating'
