@@ -9,11 +9,15 @@
  * - NodeDetailPanel: 노드 상세 정보 패널
  */
 
-// 그래프 컴포넌트 (추후 추가)
-// export { ForceGraph } from './ForceGraph'
-// export { TKGForceGraph } from './TKGForceGraph'
-// export { GraphPanel } from './GraphPanel'
-// export { NodeDetailPanel } from './NodeDetailPanel'
+// 그래프 컴포넌트
+export { ForceGraph } from './ForceGraph'
+export type { ForceGraphProps } from './ForceGraph'
+export { TreeGraph } from './TreeGraph'
+export type { TreeGraphProps } from './TreeGraph'
+export { GraphPanel } from './GraphPanel'
+export type { GraphPanelProps, GraphPanelLabels } from './GraphPanel'
+export { NodeDetailPanel } from './NodeDetailPanel'
+export type { NodeDetailPanelProps, NodeDetailPanelLabels } from './NodeDetailPanel'
 
 // 스타일 및 유틸
 export * from './graphStyles'

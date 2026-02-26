@@ -8,13 +8,16 @@
  * - RelationDetailDrawer: 관계 상세 정보 드로어
  */
 
-// 타임라인 컴포넌트 (추후 추가)
-// export { TimelineChart } from './TimelineChart'
-// export { TimelinePanel } from './TimelinePanel'
-// export { RelationDetailDrawer } from './RelationDetailDrawer'
+// 타임라인 컴포넌트
+export { TimelineChart } from './TimelineChart'
+export type { TimelineChartProps } from './TimelineChart'
+export { TimelinePanel } from './TimelinePanel'
+export type { TimelinePanelProps, TimelinePanelLabels } from './TimelinePanel'
+export { RelationDetailDrawer } from './RelationDetailDrawer'
+export type {
+  RelationDetailDrawerProps,
+  RelationDetailDrawerLabels,
+} from './RelationDetailDrawer'
 
-// 스타일
+// 스타일 (추후 추가)
 // export * from './timelineStyles'
-
-// 빈 모듈로 만들기 (TypeScript 빌드 에러 방지)
-export {}
