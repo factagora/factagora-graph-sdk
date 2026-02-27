@@ -1205,6 +1205,105 @@ export function MyNodeDetail({ selectedNode }) {
 
 ---
 
+# 💼 사용 사례 (Use Cases)
+
+이 SDK는 다양한 애플리케이션 환경에서 사용할 수 있도록 설계되었습니다. 각 환경별 상세한 통합 가이드는 아래 링크를 참조하세요:
+
+## 📱 애플리케이션별 가이드
+
+### 1. [live-article (Next.js 기본 챗봇)](./docs/live-article.md)
+RAG 기반 대화형 챗봇 애플리케이션
+
+**주요 기능:**
+- SSE 스트리밍 기반 실시간 대화
+- DG/TKG 그래프 시각화
+- 타임라인 시각화 (TKG)
+- 세션 관리 및 대화 이력
+
+**사용 패키지:**
+- `@factagora/chat-sdk` - useChat, useSessionList 훅
+- `@factagora/chatbot-viz` - GraphPanel, TimelinePanel
+- `@factagora/types` - TypeScript 타입
+
+**적합한 경우:**
+- 웹 기반 채팅 인터페이스가 필요한 경우
+- 실시간 스트리밍 응답이 필요한 경우
+- 그래프와 타임라인 시각화가 필요한 경우
+
+---
+
+### 2. [factagora-social-network (AI 예측 에이전트)](./docs/social-network.md)
+멀티 에이전트 예측 시스템
+
+**주요 기능:**
+- 각 Agent가 독립적으로 그래프 생성
+- TKG 검색 기반 예측 근거 제공
+- Agent별 그래프 시각화
+- Auto Fallback (DB → 웹 검색)
+
+**사용 패키지:**
+- `@factagora/types` - GraphData, TimelineData 타입
+- `@factagora/chatbot-viz` - 그래프/타임라인 컴포넌트
+
+**적합한 경우:**
+- AI Agent 시스템에 지식 그래프를 통합하려는 경우
+- 예측 결과의 근거를 시각적으로 제공하려는 경우
+- 여러 Agent가 독립적으로 검색해야 하는 경우
+
+---
+
+### 3. [chrome-extension (크롬 익스텐션)](./docs/chrome-extension.md)
+브라우저 확장 프로그램
+
+**주요 기능:**
+- Service Worker에서 SSE 통신
+- Content Script에서 UI 렌더링
+- React 선택적 사용 (시각화 컴포넌트)
+- 웹 페이지 컨텍스트 통합
+
+**사용 패키지:**
+- `@factagora/chat-sdk/client` - React 독립적 API
+- `@factagora/types` - TypeScript 타입
+- `@factagora/chatbot-viz` (선택) - React 기반 시각화
+
+**적합한 경우:**
+- 웹 페이지에서 Factagora 검색을 제공하려는 경우
+- 사이드바/팝업 형태의 채팅 인터페이스가 필요한 경우
+- 브라우저 컨텍스트에서 동작해야 하는 경우
+
+---
+
+### 4. [chatgpt-apps (ChatGPT / GPT Actions)](./docs/chatgpt-apps.md)
+ChatGPT 커스텀 GPT 통합
+
+**주요 기능:**
+- OpenAPI 스키마 기반 통합
+- GPT Actions로 Factagora API 호출
+- 구조화된 검색 결과 제공
+- 텍스트 기반 그래프 정보 전달
+
+**사용 패키지:**
+- API 서버 필요 (Next.js API Route 등)
+- `@factagora/types` (서버 사이드)
+
+**적합한 경우:**
+- ChatGPT에 지식 그래프 검색 기능을 추가하려는 경우
+- OpenAPI 스키마 기반 통합이 필요한 경우
+- 그래프 시각화가 아닌 텍스트 설명이 충분한 경우
+
+---
+
+## 🎯 선택 가이드
+
+| 요구사항 | 추천 환경 |
+|---------|----------|
+| 웹 기반 실시간 채팅 | [live-article](./docs/live-article.md) |
+| AI Agent 예측 시스템 | [social-network](./docs/social-network.md) |
+| 브라우저 확장 기능 | [chrome-extension](./docs/chrome-extension.md) |
+| ChatGPT 통합 | [chatgpt-apps](./docs/chatgpt-apps.md) |
+
+---
+
 # 🔄 시스템 아키텍처
 
 ## 전체 구조
@@ -1213,26 +1312,26 @@ Factagora 시스템은 하이브리드 아키텍처로 구성되어 있습니다
 
 ```
 ┌─────────────────────────────┐
-│   사용자 (브라우저)            │
+│   클라이언트 애플리케이션      │
+│   (live-article / extension  │
+│    / social-network / GPT)   │
 └──────────────┬──────────────┘
                │
                ▼
 ┌─────────────────────────────────────────┐
-│   live-article (Next.js)               │
-│   - UI 컴포넌트                         │
-│   - 인증 (NextAuth.js)                  │
-│   - API 라우트 (프록시)                  │
-│   - 권한 체크                           │
+│   애플리케이션 서버 (선택)               │
+│   - 인증 / 권한 체크                     │
+│   - API 프록시 (선택)                    │
+│   - SSE 프록시 (선택)                    │
 └──────────────┬──────────────────────────┘
-               │ (SSE 프록시)
-               │ X-Internal-Key 헤더
+               │
                ▼
 ┌─────────────────────────────────────────┐
 │   factagora-chatbot (FastAPI)          │
 │   - RAG 파이프라인                       │
 │   - 검색/Reranking/LLM                  │
 │   - 세션/메시지 CRUD                     │
-│   - Azure 내부 네트워크                   │
+│   - TKG 그래프 생성                      │
 └──────────────┬──────────────────────────┘
                │
     ┌──────────┼──────────┐
@@ -1249,17 +1348,16 @@ Factagora 시스템은 하이브리드 아키텍처로 구성되어 있습니다
 
 ```mermaid
 graph TD
-    A[Browser: React App] -->|POST /api/chat/message| B[Next.js API Route]
-    B -->|인증 + 권한 체크| C{권한 OK?}
-    C -->|Yes| D[FastAPI /rag/stream]
-    C -->|No| E[403 Forbidden]
-    D -->|SSE Stream| F[RAG Pipeline]
-    F -->|분석| G[Query Analyzer]
-    F -->|검색| H[DG/TKG Retriever]
-    F -->|확장| I[Graph Expander]
-    F -->|생성| J[LLM Generator]
-    H -->|pgvector| K[(Supabase)]
-    J -->|API| L[LLM: GPT/Claude/Gemini]
+    A[Client App] -->|HTTP/SSE| B[App Server (Optional)]
+    B -->|Proxy| C[Factagora API]
+    A -->|Direct| C
+    C -->|SSE Stream| D[RAG Pipeline]
+    D -->|분석| E[Query Analyzer]
+    D -->|검색| F[DG/TKG Retriever]
+    D -->|확장| G[Graph Expander]
+    D -->|생성| H[LLM Generator]
+    F -->|pgvector| I[(Supabase)]
+    H -->|API| J[LLM: GPT/Claude/Gemini]
 ```
 
 ## 요청/응답 흐름
@@ -1588,430 +1686,6 @@ interface TimelineInteractionState {
 }
 ```
 
----
-
-# 💡 실제 사용 사례 (live-article)
-
-## 통합 예시
-
-### CollectionDetailClient 컨테이너
-
-전체 채팅 UI의 최상위 컨테이너입니다.
-
-```typescript
-'use client'
-
-import { useChat } from '@factagora/chat-sdk'
-import { useSessionList } from '@factagora/chat-sdk'
-
-export function CollectionDetailClient({
-  collectionId,
-}: CollectionDetailClientProps) {
-  // ─── Chat 훅 (세션 전환 지원) ─────────────────────────────────
-  const {
-    messages,
-    isStreaming,
-    isCollectionBased,
-    status,
-    statusMessage,
-    partialContent,
-    followUpQuestions,
-    graphData,
-    timelineData,
-    sessionId: chatSessionId,
-    sendMessage,
-    cancelStream,
-    loadSession,
-    resetChat,
-  } = useChat({
-    collectionId,
-    onSessionCreated: (newSessionId) => {
-      sessionList.fetchSessions()
-      updateSessionUrl(newSessionId)
-    },
-    onStreamComplete: () => {
-      sessionList.fetchSessions()
-    },
-  })
-
-  // ─── Session List 훅 ──────────────────────────────────────────
-  const sessionList = useSessionList({
-    collectionId,
-    autoFetch: true,
-  })
-
-  // ─── URL ↔ 세션 동기화 ──────────────────────────────────────
-  const updateSessionUrl = useCallback((sid: string | null) => {
-    const params = new URLSearchParams(searchParams.toString())
-    if (sid) {
-      params.set('session', sid)
-    } else {
-      params.delete('session')
-    }
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
-  }, [searchParams, pathname, router])
-
-  // 세션 선택 핸들러
-  const handleSessionSelect = useCallback(async (selectedSession: ChatSession) => {
-    if (selectedSession.id === chatSessionId) return
-    try {
-      const res = await fetch(`/api/chat/sessions/${selectedSession.id}`)
-      if (!res.ok) return
-      const json = await res.json()
-      const sessionMessages: ChatMessage[] = json.data?.messages ?? []
-      loadSession(selectedSession.id, sessionMessages)
-      updateSessionUrl(selectedSession.id)
-    } catch (err) {
-      console.error('Failed to load session:', err)
-    }
-  }, [chatSessionId, loadSession, updateSessionUrl])
-
-  return (
-    <div className="flex w-full h-full">
-      {/* 좌측: Sources + Sessions */}
-      <CollectionLeftPanel
-        collectionId={collectionId}
-        sessions={sessionList.sessions}
-        selectedSessionId={chatSessionId}
-        onSessionSelect={handleSessionSelect}
-        onNewChat={resetChat}
-      />
-
-      {/* 우측: Chat Interface */}
-      <ChatInterface
-        collectionId={collectionId}
-        messages={messages}
-        isStreaming={isStreaming}
-        isCollectionBased={isCollectionBased}
-        status={status}
-        statusMessage={statusMessage}
-        partialContent={partialContent}
-        followUpQuestions={followUpQuestions}
-        graphData={graphData}
-        timelineData={timelineData}
-        sendMessage={sendMessage}
-        cancelStream={cancelStream}
-      />
-
-      {/* 우측 드로어: 노드/관계 상세 */}
-      <NodeDetailDrawer />
-      <RelationDetailDrawer />
-    </div>
-  )
-}
-```
-
-### ChatInterface 레이아웃
-
-```typescript
-export function ChatInterface({
-  collectionId,
-  messages,
-  isStreaming,
-  isCollectionBased,
-  status,
-  statusMessage,
-  partialContent,
-  followUpQuestions,
-  graphData,
-  timelineData,
-  sendMessage,
-  cancelStream,
-}: ChatInterfaceProps) {
-  const [selectedSearchMode, setSelectedSearchMode] = useState<SearchMode>('dg')
-  const [selectedModel, setSelectedModel] = useState('gpt-4o-mini')
-
-  const handleSend = (msg: string) => {
-    sendMessage(msg, selectedModel, selectedSearchMode)
-  }
-
-  return (
-    <section className="flex-1 flex flex-col">
-      {/* Messages */}
-      <ChatMessages
-        messages={messages}
-        partialContent={partialContent}
-        isStreaming={isStreaming}
-        isCollectionBased={isCollectionBased}
-        graphData={graphData}
-        timelineData={timelineData}
-        onSuggestSelect={handleSend}
-        statusIndicator={<StatusIndicator status={status} message={statusMessage} />}
-      />
-
-      {/* Follow-up Suggestions */}
-      {!isStreaming && followUpQuestions.length > 0 && (
-        <FollowUpSuggestions
-          questions={followUpQuestions}
-          onSelect={handleSend}
-        />
-      )}
-
-      {/* Input Area */}
-      <ChatInput
-        onSend={handleSend}
-        isStreaming={isStreaming}
-        onStop={cancelStream}
-        searchMode={selectedSearchMode}
-        onSearchModeChange={setSelectedSearchMode}
-        model={selectedModel}
-        onModelChange={setSelectedModel}
-      />
-    </section>
-  )
-}
-```
-
-### GraphTogglePanel 구현
-
-DG와 TKG 그래프를 토글하는 패널입니다.
-
-```typescript
-export function GraphTogglePanel({
-  graphData,
-  timelineData,
-  className,
-}: GraphTogglePanelProps) {
-  const hasGraph = !!(graphData && graphData.nodes.length > 0)
-  const hasTimeline = !!(timelineData && timelineData.items.length > 0)
-  const hasBoth = hasGraph && hasTimeline
-
-  const [activeView, setActiveView] = useState<'tkg' | 'dg'>('tkg')
-
-  // 하나만 있으면 직접 렌더
-  if (!hasBoth) {
-    if (hasTimeline) return <TimelinePanel timelineData={timelineData!} className={className} />
-    if (hasGraph) return <CitationGraphPanel graphData={graphData!} className={className} />
-    return null
-  }
-
-  // 둘 다 있으면 토글
-  return (
-    <div className={cn('rounded-xl border', className)}>
-      {/* 토글 헤더 */}
-      <div className="flex items-center justify-end px-3 py-1.5">
-        <div className="flex gap-0.5">
-          <button
-            onClick={() => setActiveView('tkg')}
-            className={activeView === 'tkg' ? 'active' : ''}
-          >
-            Timeline
-          </button>
-          <button
-            onClick={() => setActiveView('dg')}
-            className={activeView === 'dg' ? 'active' : ''}
-          >
-            Citation Graph
-          </button>
-        </div>
-      </div>
-
-      {/* 콘텐츠 */}
-      {activeView === 'tkg' ? (
-        <TimelinePanel timelineData={timelineData!} hideHeader />
-      ) : (
-        <CitationGraphPanel graphData={graphData!} hideHeader />
-      )}
-    </div>
-  )
-}
-```
-
-## 어댑터 패턴
-
-live-article에서는 @factagora/chatbot-viz 컴포넌트를 래핑하여 로컬 환경에 맞게 어댑터를 구현합니다.
-
-### TimelinePanel 래핑
-
-```typescript
-import dynamic from 'next/dynamic'
-import { useTranslations } from 'next-intl'
-import { useTimelineInteractionStore } from '@/stores'
-import type { TimelineData } from '@factagora/types'
-
-const TimelinePanelPackage = dynamic(
-  () => import('@factagora/chatbot-viz/timeline').then((m) => ({ default: m.TimelinePanel })),
-  { ssr: false },  // vis-timeline은 Canvas 기반이므로 SSR 비활성화
-)
-
-export function TimelinePanel({ timelineData, className, hideHeader = false }: TimelinePanelProps) {
-  const t = useTranslations('chat')
-  const openRelationDetail = useTimelineInteractionStore((s) => s.openRelationDetail)
-
-  // next-intl → labels 변환 (다국어 지원)
-  const labels = useMemo(
-    () => ({
-      title: t('chat.timeline.title'),
-      stats: t('chat.timeline.stats', { entities: '{entities}', relations: '{relations}' }),
-      emptyRelations: t('chat.timeline.emptyRelations'),
-      emptyRelationsDetail: t('chat.timeline.emptyRelationsDetail', { count: '{count}' }),
-    }),
-    [t],
-  )
-
-  // store → props 변환 (상호작용 연결)
-  const handleItemSelect = useCallback((item: any, data: any) => {
-    openRelationDetail(item, data)
-  }, [openRelationDetail])
-
-  return (
-    <TimelinePanelPackage
-      timelineData={timelineData}
-      labels={labels}
-      className={className}
-      hideHeader={hideHeader}
-      itemColor="#3b82f6"
-      onItemSelect={handleItemSelect}
-    />
-  )
-}
-```
-
-### ForceGraph 래핑 (TKG)
-
-```typescript
-import dynamic from 'next/dynamic'
-import { useThemeStore } from '@/stores/useThemeStore'
-import { useGraphInteractionStore } from '@/stores/useGraphInteractionStore'
-import type { GraphData } from '@factagora/types'
-
-const ForceGraph = dynamic(
-  () => import('@factagora/chatbot-viz/graph').then((m) => ({ default: m.ForceGraph })),
-  { ssr: false },
-)
-
-export function TKGForceGraph({ graphData }: TKGForceGraphProps) {
-  // Theme 상태 관리
-  const theme = useThemeStore((s) => s.theme)
-  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-
-  // Graph 상호작용 상태
-  const hoveredNodeId = useGraphInteractionStore((s) => s.hoveredNodeId)
-  const openNodeDetail = useGraphInteractionStore((s) => s.openNodeDetail)
-  const setHoveredNodeId = useGraphInteractionStore((s) => s.setHoveredNodeId)
-
-  const handleNodeClick = useCallback((node: any, data: any) => {
-    openNodeDetail(node, data)
-  }, [openNodeDetail])
-
-  const handleNodeHover = useCallback((nodeId: string | null) => {
-    setHoveredNodeId(nodeId)
-  }, [setHoveredNodeId])
-
-  return (
-    <ForceGraph
-      graphData={graphData}
-      theme={isDark ? 'dark' : 'light'}
-      onNodeClick={handleNodeClick}
-      onNodeHover={handleNodeHover}
-      hoveredNodeId={hoveredNodeId}
-    />
-  )
-}
-```
-
-## 상태 관리 구조
-
-### useGraphInteractionStore
-
-```typescript
-import { create } from 'zustand'
-import type { GraphNode, GraphData } from '@factagora/types'
-
-interface GraphInteractionState {
-  hoveredNodeId: string | null
-  selectedNodeId: string | null
-  selectedNodeData: GraphNode | null
-  selectedGraphData: GraphData | null
-
-  setHoveredNodeId: (id: string | null) => void
-  setSelectedNodeId: (id: string | null) => void
-
-  openNodeDetail: (node: GraphNode, graphData: GraphData) => void
-  closeNodeDetail: () => void
-
-  resetInteraction: () => void
-}
-
-export const useGraphInteractionStore = create<GraphInteractionState>((set) => ({
-  hoveredNodeId: null,
-  selectedNodeId: null,
-  selectedNodeData: null,
-  selectedGraphData: null,
-
-  setHoveredNodeId: (id) => set({ hoveredNodeId: id }),
-  setSelectedNodeId: (id) => set({ selectedNodeId: id }),
-
-  openNodeDetail: (node, graphData) => {
-    // Timeline과의 상호 제외 (한 번에 하나만 활성화)
-    useTimelineInteractionStore.getState().closeRelationDetail()
-    set({
-      selectedNodeId: node.id,
-      selectedNodeData: node,
-      selectedGraphData: graphData,
-    })
-  },
-
-  closeNodeDetail: () => set({
-    selectedNodeId: null,
-    selectedNodeData: null,
-    selectedGraphData: null,
-  }),
-
-  resetInteraction: () => set({
-    hoveredNodeId: null,
-    selectedNodeId: null,
-    selectedNodeData: null,
-    selectedGraphData: null,
-  }),
-}))
-```
-
-### useTimelineInteractionStore
-
-```typescript
-import { create } from 'zustand'
-import type { TimelineItem, TimelineData } from '@factagora/types'
-
-interface TimelineInteractionState {
-  selectedItemId: string | null
-  selectedItemData: TimelineItem | null
-  selectedTimelineData: TimelineData | null
-
-  openRelationDetail: (item: TimelineItem, timelineData: TimelineData) => void
-  closeRelationDetail: () => void
-
-  resetInteraction: () => void
-}
-
-export const useTimelineInteractionStore = create<TimelineInteractionState>((set) => ({
-  selectedItemId: null,
-  selectedItemData: null,
-  selectedTimelineData: null,
-
-  openRelationDetail: (item, timelineData) => {
-    // Graph와의 상호 제외
-    useGraphInteractionStore.getState().closeNodeDetail()
-    set({
-      selectedItemId: item.id,
-      selectedItemData: item,
-      selectedTimelineData: timelineData,
-    })
-  },
-
-  closeRelationDetail: () => set({
-    selectedItemId: null,
-    selectedItemData: null,
-    selectedTimelineData: null,
-  }),
-
-  resetInteraction: () => set({
-    selectedItemId: null,
-    selectedItemData: null,
-    selectedTimelineData: null,
-  }),
-}))
-```
 
 ---
 
