@@ -297,14 +297,14 @@ export function useChat(options: UseChatOptions): UseChatReturn {
             }
             case 'graph': {
               const data = event.data as SSEGraphEvent
-              setGraphData(data.graph)
-              graphDataRef.current = data.graph
+              setGraphData(data)
+              graphDataRef.current = data
               break
             }
             case 'timeline': {
               const data = event.data as SSETimelineEvent
-              setTimelineData(data.timeline)
-              timelineDataRef.current = data.timeline
+              setTimelineData(data)
+              timelineDataRef.current = data
               break
             }
             case 'follow_up': {

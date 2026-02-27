@@ -69,17 +69,19 @@ export interface SSEDeltaEvent {
   content: string
 }
 
-/** 그래프 이벤트 (DG/TKG 그래프 시각화 데이터) */
-export interface SSEGraphEvent {
-  /** 그래프 데이터 */
-  graph: GraphData
-}
+/**
+ * 그래프 이벤트 (DG/TKG 그래프 시각화 데이터)
+ *
+ * ⚠️ 백엔드는 직접 GraphData 구조를 전송 (graph 필드로 감싸지 않음)
+ */
+export interface SSEGraphEvent extends GraphData {}
 
-/** 타임라인 이벤트 (TKG 타임라인 시각화 데이터) */
-export interface SSETimelineEvent {
-  /** 타임라인 데이터 */
-  timeline: TimelineData
-}
+/**
+ * 타임라인 이벤트 (TKG 타임라인 시각화 데이터)
+ *
+ * ⚠️ 백엔드는 직접 TimelineData 구조를 전송 (timeline 필드로 감싸지 않음)
+ */
+export interface SSETimelineEvent extends TimelineData {}
 
 /** 후속 질문 이벤트 (LLM 생성 추천 질문) */
 export interface SSEFollowUpEvent {
