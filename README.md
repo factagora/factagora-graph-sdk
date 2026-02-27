@@ -79,7 +79,107 @@ factagora-graph-sdk/
 
 ---
 
-# 📖 패키지 상세 가이드
+# 💼 사용 사례 (Use Cases)
+
+이 SDK는 다양한 애플리케이션 환경에서 사용할 수 있도록 설계되었습니다. 각 환경별 상세한 통합 가이드는 아래 링크를 참조하세요:
+
+## 📱 애플리케이션별 가이드
+
+### 1. [live-article (Next.js 기본 챗봇)](./docs/live-article.md)
+RAG 기반 대화형 챗봇 애플리케이션
+
+**주요 기능:**
+- SSE 스트리밍 기반 실시간 대화
+- DG/TKG 그래프 시각화
+- 타임라인 시각화 (TKG)
+- 세션 관리 및 대화 이력
+
+**사용 패키지:**
+- `@factagora/chat-sdk` - useChat, useSessionList 훅
+- `@factagora/chatbot-viz` - GraphPanel, TimelinePanel
+- `@factagora/types` - TypeScript 타입
+
+**적합한 경우:**
+- 웹 기반 채팅 인터페이스가 필요한 경우
+- 실시간 스트리밍 응답이 필요한 경우
+- 그래프와 타임라인 시각화가 필요한 경우
+
+---
+
+### 2. [factagora-social-network (AI 예측 에이전트)](./docs/social-network.md)
+멀티 에이전트 예측 시스템
+
+**주요 기능:**
+- 각 Agent가 독립적으로 그래프 생성
+- TKG 검색 기반 예측 근거 제공
+- Agent별 그래프 시각화
+- Auto Fallback (DB → 웹 검색)
+
+**사용 패키지:**
+- `@factagora/types` - GraphData, TimelineData 타입
+- `@factagora/chatbot-viz` - 그래프/타임라인 컴포넌트
+
+**적합한 경우:**
+- AI Agent 시스템에 지식 그래프를 통합하려는 경우
+- 예측 결과의 근거를 시각적으로 제공하려는 경우
+- 여러 Agent가 독립적으로 검색해야 하는 경우
+
+---
+
+### 3. [chrome-extension (크롬 익스텐션)](./docs/chrome-extension.md)
+브라우저 확장 프로그램
+
+**주요 기능:**
+- Service Worker에서 SSE 통신
+- Content Script에서 UI 렌더링
+- React 선택적 사용 (시각화 컴포넌트)
+- 웹 페이지 컨텍스트 통합
+
+**사용 패키지:**
+- `@factagora/chat-sdk/client` - React 독립적 API
+- `@factagora/types` - TypeScript 타입
+- `@factagora/chatbot-viz` (선택) - React 기반 시각화
+
+**적합한 경우:**
+- 웹 페이지에서 Factagora 검색을 제공하려는 경우
+- 사이드바/팝업 형태의 채팅 인터페이스가 필요한 경우
+- 브라우저 컨텍스트에서 동작해야 하는 경우
+
+---
+
+### 4. [chatgpt-apps (ChatGPT / GPT Actions)](./docs/chatgpt-apps.md)
+ChatGPT 커스텀 GPT 통합
+
+**주요 기능:**
+- OpenAPI 스키마 기반 통합
+- GPT Actions로 Factagora API 호출
+- 구조화된 검색 결과 제공
+- 텍스트 기반 그래프 정보 전달
+
+**사용 패키지:**
+- API 서버 필요 (Next.js API Route 등)
+- `@factagora/types` (서버 사이드)
+
+**적합한 경우:**
+- ChatGPT에 지식 그래프 검색 기능을 추가하려는 경우
+- OpenAPI 스키마 기반 통합이 필요한 경우
+- 그래프 시각화가 아닌 텍스트 설명이 충분한 경우
+
+---
+
+## 🎯 선택 가이드
+
+| 요구사항 | 추천 환경 |
+|---------|----------|
+| 웹 기반 실시간 채팅 | [live-article](./docs/live-article.md) |
+| AI Agent 예측 시스템 | [social-network](./docs/social-network.md) |
+| 브라우저 확장 기능 | [chrome-extension](./docs/chrome-extension.md) |
+| ChatGPT 통합 | [chatgpt-apps](./docs/chatgpt-apps.md) |
+
+---
+
+<details>
+<summary><h1>📖 패키지 상세 가이드</h1></summary>
 
 ## @factagora/types
 
@@ -1203,104 +1303,7 @@ export function MyNodeDetail({ selectedNode }) {
 }
 ```
 
----
-
-# 💼 사용 사례 (Use Cases)
-
-이 SDK는 다양한 애플리케이션 환경에서 사용할 수 있도록 설계되었습니다. 각 환경별 상세한 통합 가이드는 아래 링크를 참조하세요:
-
-## 📱 애플리케이션별 가이드
-
-### 1. [live-article (Next.js 기본 챗봇)](./docs/live-article.md)
-RAG 기반 대화형 챗봇 애플리케이션
-
-**주요 기능:**
-- SSE 스트리밍 기반 실시간 대화
-- DG/TKG 그래프 시각화
-- 타임라인 시각화 (TKG)
-- 세션 관리 및 대화 이력
-
-**사용 패키지:**
-- `@factagora/chat-sdk` - useChat, useSessionList 훅
-- `@factagora/chatbot-viz` - GraphPanel, TimelinePanel
-- `@factagora/types` - TypeScript 타입
-
-**적합한 경우:**
-- 웹 기반 채팅 인터페이스가 필요한 경우
-- 실시간 스트리밍 응답이 필요한 경우
-- 그래프와 타임라인 시각화가 필요한 경우
-
----
-
-### 2. [factagora-social-network (AI 예측 에이전트)](./docs/social-network.md)
-멀티 에이전트 예측 시스템
-
-**주요 기능:**
-- 각 Agent가 독립적으로 그래프 생성
-- TKG 검색 기반 예측 근거 제공
-- Agent별 그래프 시각화
-- Auto Fallback (DB → 웹 검색)
-
-**사용 패키지:**
-- `@factagora/types` - GraphData, TimelineData 타입
-- `@factagora/chatbot-viz` - 그래프/타임라인 컴포넌트
-
-**적합한 경우:**
-- AI Agent 시스템에 지식 그래프를 통합하려는 경우
-- 예측 결과의 근거를 시각적으로 제공하려는 경우
-- 여러 Agent가 독립적으로 검색해야 하는 경우
-
----
-
-### 3. [chrome-extension (크롬 익스텐션)](./docs/chrome-extension.md)
-브라우저 확장 프로그램
-
-**주요 기능:**
-- Service Worker에서 SSE 통신
-- Content Script에서 UI 렌더링
-- React 선택적 사용 (시각화 컴포넌트)
-- 웹 페이지 컨텍스트 통합
-
-**사용 패키지:**
-- `@factagora/chat-sdk/client` - React 독립적 API
-- `@factagora/types` - TypeScript 타입
-- `@factagora/chatbot-viz` (선택) - React 기반 시각화
-
-**적합한 경우:**
-- 웹 페이지에서 Factagora 검색을 제공하려는 경우
-- 사이드바/팝업 형태의 채팅 인터페이스가 필요한 경우
-- 브라우저 컨텍스트에서 동작해야 하는 경우
-
----
-
-### 4. [chatgpt-apps (ChatGPT / GPT Actions)](./docs/chatgpt-apps.md)
-ChatGPT 커스텀 GPT 통합
-
-**주요 기능:**
-- OpenAPI 스키마 기반 통합
-- GPT Actions로 Factagora API 호출
-- 구조화된 검색 결과 제공
-- 텍스트 기반 그래프 정보 전달
-
-**사용 패키지:**
-- API 서버 필요 (Next.js API Route 등)
-- `@factagora/types` (서버 사이드)
-
-**적합한 경우:**
-- ChatGPT에 지식 그래프 검색 기능을 추가하려는 경우
-- OpenAPI 스키마 기반 통합이 필요한 경우
-- 그래프 시각화가 아닌 텍스트 설명이 충분한 경우
-
----
-
-## 🎯 선택 가이드
-
-| 요구사항 | 추천 환경 |
-|---------|----------|
-| 웹 기반 실시간 채팅 | [live-article](./docs/live-article.md) |
-| AI Agent 예측 시스템 | [social-network](./docs/social-network.md) |
-| 브라우저 확장 기능 | [chrome-extension](./docs/chrome-extension.md) |
-| ChatGPT 통합 | [chatgpt-apps](./docs/chatgpt-apps.md) |
+</details>
 
 ---
 
@@ -1348,7 +1351,7 @@ Factagora 시스템은 하이브리드 아키텍처로 구성되어 있습니다
 
 ```mermaid
 graph TD
-    A[Client App] -->|HTTP/SSE| B[App Server (Optional)]
+    A[Client App] -->|HTTP/SSE| B["App Server (Optional)"]
     B -->|Proxy| C[Factagora API]
     A -->|Direct| C
     C -->|SSE Stream| D[RAG Pipeline]
