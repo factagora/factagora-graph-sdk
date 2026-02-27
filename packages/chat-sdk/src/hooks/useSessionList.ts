@@ -86,7 +86,8 @@ export function useSessionList(options: UseSessionListOptions): UseSessionListRe
     } finally {
       setIsLoading(false)
     }
-  }, [collectionId, includeDeleted, apiBaseUrl, headers])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collectionId, includeDeleted])
 
   const deleteSessionCallback = useCallback(
     async (sessionId: string): Promise<boolean> => {
@@ -109,7 +110,8 @@ export function useSessionList(options: UseSessionListOptions): UseSessionListRe
         return false
       }
     },
-    [sessions, apiBaseUrl, headers]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sessions]
   )
 
   // 자동 fetch
