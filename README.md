@@ -961,6 +961,76 @@ DG/TKG 그래프, 타임라인 시각화 컴포넌트를 제공합니다. React 
 pnpm add @factagora/chatbot-viz @factagora/types
 ```
 
+### ChatVisualization - 통합 컴포넌트 (권장) ⭐
+
+그래프와 타임라인을 자동으로 관리하는 통합 컴포넌트입니다. 채팅 UI에서 가장 편리하게 사용할 수 있습니다.
+
+#### 특징
+
+- **자동 감지**: graphData/timelineData 유무에 따라 적절한 UI 자동 렌더링
+- **4가지 표시 모드**: `auto`, `tabs` (탭 전환), `stacked` (위아래), `side-by-side` (좌우)
+- **테마 지원**: light/dark 모드
+- **이벤트 핸들러**: 그래프 노드 클릭, 타임라인 아이템 클릭
+
+#### Props
+
+```typescript
+import { ChatVisualization } from '@factagora/chatbot-viz'
+import type { GraphData, TimelineData, GraphNode, TimelineItem } from '@factagora/types'
+
+interface ChatVisualizationProps {
+  graphData?: GraphData | null
+  timelineData?: TimelineData | null
+  mode?: 'auto' | 'tabs' | 'stacked' | 'side-by-side'  // 기본값: 'auto'
+  defaultView?: 'graph' | 'timeline'                   // 기본값: 'graph'
+  labels?: {
+    graphTab?: string      // 기본값: "Graph"
+    timelineTab?: string   // 기본값: "Timeline"
+  }
+  theme?: 'light' | 'dark'                              // 기본값: 'light'
+  className?: string
+  onGraphNodeClick?: (node: GraphNode, graphData: GraphData) => void
+  onTimelineItemClick?: (item: TimelineItem, timelineData: TimelineData) => void
+}
+```
+
+#### 사용 예시
+
+```typescript
+import { ChatVisualization } from '@factagora/chatbot-viz'
+
+export function ChatInterface({ graphData, timelineData }) {
+  return (
+    <ChatVisualization
+      graphData={graphData}
+      timelineData={timelineData}
+      mode="tabs"           // 탭으로 전환
+      defaultView="graph"   // 그래프부터 보여주기
+      theme="light"
+      labels={{
+        graphTab: "지식 그래프",
+        timelineTab: "타임라인"
+      }}
+      onGraphNodeClick={(node, data) => {
+        console.log('노드 클릭:', node.label)
+      }}
+      onTimelineItemClick={(item, data) => {
+        console.log('타임라인 아이템 클릭:', item.title)
+      }}
+    />
+  )
+}
+```
+
+#### 동작 방식
+
+- **그래프만 있으면** → `GraphPanel`만 렌더링
+- **타임라인만 있으면** → `TimelinePanel`만 렌더링
+- **둘 다 있으면** → `mode`에 따라 탭/스택/나란히 보기
+- **둘 다 없으면** → `null` 반환
+
+---
+
 ### GraphPanel - DG/TKG 자동 분기 컨테이너
 
 metadata.graphType에 따라 자동으로 TreeGraph (DG) 또는 ForceGraph (TKG)를 렌더링합니다.
