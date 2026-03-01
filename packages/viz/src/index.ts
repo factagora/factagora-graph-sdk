@@ -26,3 +26,6 @@ export * from './timeline'
 
 // Stores
 export * from './stores'
+
+// Chat 통합 컴포넌트
+export * from './chat'

@@ -5,6 +5,7 @@ export default defineConfig({
     index: 'src/index.ts',
     graph: 'src/graph/index.ts',
     timeline: 'src/timeline/index.ts',
+    chat: 'src/chat/index.ts',
   },
   format: ['esm', 'cjs'],
   dts: true,
