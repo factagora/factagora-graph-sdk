@@ -110,20 +110,20 @@ export function TimelineChart({
       }
     })
 
-    // 초기 한 번만 fit (스크롤 리셋 방지)
-    setTimeout(() => {
-      tl.fit({ animation: false })
-    }, 0)
-
     // changed 이벤트: 스택 레이아웃 계산 완료 후 발생
     const onChanged = () => {
+      // 레이아웃 계산이 완료된 후 fit 실행 (초기 위치 설정)
+      tl.fit({ animation: false })
       setReady(true)
       tl.off('changed', onChanged)
     }
     tl.on('changed', onChanged)
 
     // fallback: changed가 발생하지 않는 경우 대비
-    const timerId = setTimeout(() => setReady(true), 150)
+    const timerId = setTimeout(() => {
+      tl.fit({ animation: false })
+      setReady(true)
+    }, 150)
 
     return () => {
       clearTimeout(timerId)
