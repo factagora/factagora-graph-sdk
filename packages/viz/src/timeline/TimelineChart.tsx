@@ -147,7 +147,7 @@ export function TimelineChart({
     <div
       ref={containerRef}
       className="w-full transition-opacity duration-200"
-      style={{ opacity: ready ? 1 : 0, minHeight: '400px' }}
+      style={{ opacity: ready ? 1 : 0, height: '400px' }}
     />
   )
 }
