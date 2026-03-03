@@ -76,13 +76,11 @@ export function TimelineChart({
 
     setReady(false)
 
-    const GROUP_MIN_HEIGHT = 36
-
     const options = {
       stack: true,
       stackSubgroups: false,
       showCurrentTime: true,
-      groupMinHeight: GROUP_MIN_HEIGHT,
+      // groupMinHeight: vis-timeline 8.x에서 제거됨
       zoomMin: 1000 * 60 * 60 * 24 * 30,
       zoomMax: 1000 * 60 * 60 * 24 * 365 * 10,
       orientation: { axis: 'top' as const, item: 'top' as const },

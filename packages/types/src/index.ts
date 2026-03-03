@@ -3,7 +3,7 @@
  *
  * Factagora 그래프 기반 지식 탐색 SDK - 공유 TypeScript 타입
  *
- * - Graph: DG/TKG 그래프 시각화 타입
+ * - Graph: DG/TKG/Evidence 그래프 시각화 타입
  * - Timeline: TKG 타임라인 시각화 타입
  * - SSE: Server-Sent Events 실시간 통신 타입
  * - Chat: 채팅 도메인 타입
@@ -20,9 +20,11 @@ export type {
   DGGraphMetadata,
   TKGGraphMetadata,
   TKGNodeMetadata,
+  EvidenceGraphMetadata,
+  EvidenceNodeMetadata,
 } from './graph'
 
-export { isTKGGraphMetadata } from './graph'
+export { isTKGGraphMetadata, isEvidenceGraphMetadata } from './graph'
 
 // ─── Timeline 타입 ─────────────────────────────────────────────
 export type {

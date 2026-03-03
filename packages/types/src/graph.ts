@@ -1,7 +1,8 @@
 /**
  * 그래프 시각화 타입 정의
  *
- * DG (Document Graph) 및 TKG (Temporal Knowledge Graph) 시각화에 사용되는 공통 타입
+ * DG (Document Graph), TKG (Temporal Knowledge Graph),
+ * Evidence (에이전트 합의/증거) 시각화에 사용되는 공통 타입
  */
 
 // ─── 그래프 데이터 구조 ────────────────────────────────────────
@@ -19,7 +20,7 @@ export interface GraphNode {
   /** 노드 레이블 (표시명) */
   label: string
 
-  /** 노드 타입 (fact, condition, procedure, drug, measurement, visit, analysis, ...) */
+  /** 노드 타입 (fact, condition, procedure, drug, measurement, visit, analysis, claim, prediction, agent, evidence, ...) */
   type: string
 
   /** 신뢰도 (0.0 ~ 1.0) */
@@ -37,8 +38,8 @@ export interface GraphNode {
   /** 태그 목록 */
   tags: string[]
 
-  /** 추가 메타데이터 (TKG의 경우 TKGNodeMetadata) */
-  metadata: TKGNodeMetadata | Record<string, unknown> | null
+  /** 추가 메타데이터 (TKG: TKGNodeMetadata, Evidence: EvidenceNodeMetadata) */
+  metadata: TKGNodeMetadata | EvidenceNodeMetadata | Record<string, unknown> | null
 
   /** 검증 시작 시점 (ISO 8601) */
   validationCreatedAt: string | null
@@ -54,7 +55,7 @@ export interface GraphEdge {
   /** 타겟 노드 ID */
   target: string
 
-  /** 관계 타입 (parent_of, child_of, supports, contradicts, relates_to, derives_from, ...) */
+  /** 관계 타입 (parent_of, child_of, supports, contradicts, relates_to, derives_from, judges, cites, ...) */
   relationship: string
 
   /** 엣지 가중치 */
@@ -134,14 +135,77 @@ export interface TKGGraphMetadata {
   avgPathConfidence: number
 }
 
+// ─── Evidence (에이전트 합의/증거) 메타데이터 ─────────────────
+
+/** Evidence 그래프 노드 메타데이터 */
+export interface EvidenceNodeMetadata {
+  /** 노드 역할 */
+  nodeRole: 'claim' | 'prediction' | 'agent' | 'evidence'
+
+  /** 판정 (claim 노드만 해당: TRUE, FALSE, UNCERTAIN) */
+  verdict?: string | null
+
+  /** 에이전트 포지션 (agent 노드만 해당: TRUE, FALSE, UNCERTAIN) */
+  position?: string | null
+
+  /** 에이전트 신뢰도 (agent 노드만 해당, 0.0 ~ 1.0) */
+  agentConfidence?: number | null
+
+  /** 에이전트 성격 (agent 노드만 해당: Analyst, Optimist 등) */
+  personality?: string | null
+
+  /** 에이전트 핵심 인사이트 (agent 노드만 해당) */
+  keyInsight?: string | null
+
+  /** 증거 신뢰도 (evidence 노드만 해당, 0.0 ~ 1.0) */
+  credibility?: number | null
+
+  /** 증거 출처 타입 (evidence 노드만 해당: DATA, EXPERT, NEWS, FACT_CHECK) */
+  sourceType?: string | null
+
+  /** 증거 출처 URL (evidence 노드만 해당) */
+  sourceUrl?: string | null
+}
+
+/** Evidence 그래프 메타데이터 */
+export interface EvidenceGraphMetadata {
+  /** 그래프 타입 식별자 */
+  graphType: 'evidence'
+
+  /** 총 노드 수 */
+  totalNodes: number
+
+  /** 총 엣지 수 */
+  totalEdges: number
+
+  /** 중심 노드 타입 */
+  centerType: 'claim' | 'prediction'
+
+  /** 에이전트 수 */
+  agentCount: number
+
+  /** 증거 수 */
+  evidenceCount: number
+
+  /** 평균 에이전트 신뢰도 */
+  avgConfidence: number
+}
+
 // ─── 유니온 타입 및 타입 가드 ──────────────────────────────────
 
-/** 그래프 메타데이터 (DG 또는 TKG) */
-export type GraphMetadata = DGGraphMetadata | TKGGraphMetadata
+/** 그래프 메타데이터 (DG, TKG 또는 Evidence) */
+export type GraphMetadata = DGGraphMetadata | TKGGraphMetadata | EvidenceGraphMetadata
 
 /** TKG 그래프 메타데이터 타입 가드 */
 export function isTKGGraphMetadata(
   metadata: GraphMetadata | null | undefined,
 ): metadata is TKGGraphMetadata {
   return !!metadata && 'graphType' in metadata && metadata.graphType === 'multihop_tkg'
+}
+
+/** Evidence 그래프 메타데이터 타입 가드 */
+export function isEvidenceGraphMetadata(
+  metadata: GraphMetadata | null | undefined,
+): metadata is EvidenceGraphMetadata {
+  return !!metadata && 'graphType' in metadata && metadata.graphType === 'evidence'
 }
