@@ -110,23 +110,36 @@ export function TimelineChart({
       }
     })
 
+    // 레이아웃 준비를 위한 타이머
+    let readyTimerId: ReturnType<typeof setTimeout> | null = null
+
     // changed 이벤트: 스택 레이아웃 계산 완료 후 발생
     const onChanged = () => {
-      // 레이아웃 계산이 완료된 후 fit 실행 (초기 위치 설정)
-      tl.fit({ animation: false })
-      setReady(true)
-      tl.off('changed', onChanged)
+      if (readyTimerId) {
+        clearTimeout(readyTimerId)
+        readyTimerId = null
+      }
+      // 레이아웃 계산이 완료된 후 약간의 지연을 두고 표시
+      readyTimerId = setTimeout(() => {
+        tl.fit({ animation: false })
+        setReady(true)
+        tl.off('changed', onChanged)
+      }, 50)
     }
     tl.on('changed', onChanged)
 
-    // fallback: changed가 발생하지 않는 경우 대비
-    const timerId = setTimeout(() => {
+    // fallback: changed가 발생하지 않는 경우 대비 (더 긴 타임아웃)
+    const fallbackTimerId = setTimeout(() => {
+      if (readyTimerId) {
+        clearTimeout(readyTimerId)
+      }
       tl.fit({ animation: false })
       setReady(true)
-    }, 150)
+    }, 500)
 
     return () => {
-      clearTimeout(timerId)
+      if (readyTimerId) clearTimeout(readyTimerId)
+      clearTimeout(fallbackTimerId)
       tl.destroy()
       timelineRef.current = null
     }
