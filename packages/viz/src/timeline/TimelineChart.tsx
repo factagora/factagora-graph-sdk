@@ -144,10 +144,21 @@ export function TimelineChart({
   }, [itemsDS, groupsDS, timelineData, onItemSelect])
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full transition-opacity duration-200"
-      style={{ opacity: ready ? 1 : 0, height: '400px' }}
-    />
+    <>
+      <style>{`
+        .vis-timeline .vis-labelset .vis-label {
+          min-height: 36px;
+          line-height: 36px;
+        }
+        .vis-timeline .vis-itemset .vis-foreground .vis-group {
+          min-height: 36px;
+        }
+      `}</style>
+      <div
+        ref={containerRef}
+        className="w-full transition-opacity duration-200"
+        style={{ opacity: ready ? 1 : 0, height: '400px' }}
+      />
+    </>
   )
 }
