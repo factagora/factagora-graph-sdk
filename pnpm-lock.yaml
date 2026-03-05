@@ -55,8 +55,8 @@ importers:
         specifier: ^1.1.5
         version: 1.1.8
       '@factagora/types':
-        specifier: workspace:*
-        version: link:../types
+        specifier: ^0.1.3
+        version: 0.1.3
       '@xyflow/react':
         specifier: ^12.0.0
         version: 12.10.1(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -394,6 +394,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@factagora/types@0.1.3':
+    resolution: {integrity: sha512-h6lu+FVj25PuJkYvTQv7Ne7/iCt+ECJAUyBSxuXF9cLeSANLT/95iYGnoG8n6NT4+J1PAcGVT0TemLn5lgxiHw==, tarball: https://npm.pkg.github.com/download/@factagora/types/0.1.3/a3aa2291e1e2f7171c5be17815e978a5e16f48c8}
 
   '@joshwooding/vite-plugin-react-docgen-typescript@0.6.4':
     resolution: {integrity: sha512-6PyZBYKnnVNqOSB0YFly+62R7dmov8segT27A+RVTBVd4iAE6kbW9QBJGlyR2yG4D4ohzhZSTIu7BK1UTtmFFA==}
@@ -2089,6 +2092,8 @@ snapshots:
 
   '@esbuild/win32-x64@0.27.3':
     optional: true
+
+  '@factagora/types@0.1.3': {}
 
   '@joshwooding/vite-plugin-react-docgen-typescript@0.6.4(typescript@5.9.3)(vite@7.3.1)':
     dependencies:
