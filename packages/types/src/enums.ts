@@ -11,8 +11,9 @@
  *
  * - `dg`: Document Graph - 트리 기반 factblock 관계
  * - `tkg`: Temporal Knowledge Graph - Multi-hop 시간적 엔티티 관계
+ * - `deepverify`: Verification-focused mode - SOURCE → RELATIONSHIP → DISCOVERY 스토리텔링
  */
-export type SearchMode = 'dg' | 'tkg'
+export type SearchMode = 'dg' | 'tkg' | 'deepverify'
 
 // ─── 질문 유형 ─────────────────────────────────────────────────
 

@@ -7,6 +7,7 @@
 
 import type { GraphData } from './graph'
 import type { TimelineData } from './timeline'
+import type { SearchMode } from './enums'
 
 // ─── Agent 출력 표준 형식 ──────────────────────────────────────
 
@@ -76,7 +77,7 @@ export interface AgentMetadata {
   /**
    * 검색 모드 (Factagora RAG 전용, 선택적)
    */
-  searchMode?: 'dg' | 'tkg'
+  searchMode?: SearchMode
 }
 
 // ─── Agent Adapter 인터페이스 ──────────────────────────────────
@@ -96,7 +97,7 @@ export interface AgentMetadata {
  *     graph?: GraphData
  *     timeline?: TimelineData
  *     model: string
- *     searchMode: 'dg' | 'tkg'
+ *     searchMode: 'dg' | 'tkg' | 'deepverify'
  *   }): AgentOutput {
  *     return {
  *       graph: rawOutput.graph || null,

@@ -7,6 +7,7 @@
 
 import type { GraphData } from './graph'
 import type { TimelineData } from './timeline'
+import type { SearchMode } from './enums'
 
 // ─── 이벤트 타입 ───────────────────────────────────────────────
 
@@ -100,8 +101,8 @@ export interface SSEDoneEvent {
   /** 요청 ID (추적용) */
   requestId: string
 
-  /** 검색 모드 (dg 또는 tkg) */
-  searchMode: 'dg' | 'tkg'
+  /** 검색 모드 (dg, tkg, deepverify) */
+  searchMode: SearchMode
 }
 
 /** 에러 이벤트 */

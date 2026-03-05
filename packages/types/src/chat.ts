@@ -6,6 +6,7 @@
 
 import type { GraphData } from './graph'
 import type { TimelineData } from './timeline'
+import type { SearchMode } from './enums'
 
 // ─── 도메인 모델 ───────────────────────────────────────────────
 
@@ -101,5 +102,5 @@ export interface ChatRequest {
   model?: string
 
   /** 검색 모드 (선택적, 기본값: dg) */
-  searchMode?: 'dg' | 'tkg'
+  searchMode?: SearchMode
 }
