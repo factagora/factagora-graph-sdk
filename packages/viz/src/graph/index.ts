@@ -29,5 +29,3 @@ export type { NodeDetailPanelProps, NodeDetailPanelLabels } from './NodeDetailPa
 export * from './graphStyles'
 export * from './layoutUtils'
 export * from './tkgGraphStyles'
-export * from './evidenceGraphStyles'
-export * from './argumentMapGraphStyles'

@@ -8,13 +8,17 @@ import {
   FileText,
   AlertCircle,
   Lightbulb,
+  Shield,
+  Bot,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 /** 노드 타입별 Lucide 아이콘 */
 export const NODE_TYPE_ICONS: Record<string, LucideIcon> = {
   claim: AlertCircle,     // 주장 (경고 아이콘)
+  root_claim: Shield,     // 루트 주장 (방패 아이콘)
   prediction: Lightbulb,  // 예측 (전구 아이콘)
+  agent: Bot,             // 에이전트 (봇 아이콘)
 }
 
 /** 기본 아이콘 (파일/문서) */
@@ -23,7 +27,9 @@ export const DEFAULT_NODE_ICON: LucideIcon = FileText
 /** 노드 타입별 색상 (Tailwind 클래스) */
 export const NODE_TYPE_COLORS: Record<string, { bg: string; border: string; text: string }> = {
   claim: { bg: 'bg-amber-500/10', border: 'border-amber-500/40', text: 'text-amber-600 dark:text-amber-400' },
+  root_claim: { bg: 'bg-purple-500/10', border: 'border-purple-500/40', text: 'text-purple-600 dark:text-purple-400' },
   prediction: { bg: 'bg-yellow-500/10', border: 'border-yellow-500/40', text: 'text-yellow-600 dark:text-yellow-400' },
+  agent: { bg: 'bg-green-500/10', border: 'border-green-500/40', text: 'text-green-600 dark:text-green-400' },
 }
 
 /** 기본 색상 (파란색) */
@@ -36,7 +42,9 @@ export const DEFAULT_NODE_COLOR = {
 /** 노드 타입별 hex 색상 (엣지 스타일 + 인라인 CSS용) */
 export const NODE_TYPE_HEX: Record<string, string> = {
   claim: '#f59e0b',       // 주황색
+  root_claim: '#a855f7',  // 보라색
   prediction: '#eab308',  // 노란색
+  agent: '#22c55e',       // 녹색
 }
 
 export const DEFAULT_NODE_HEX = '#3b82f6'  // 기본 파란색 (fact 색상)

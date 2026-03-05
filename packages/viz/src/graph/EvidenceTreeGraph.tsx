@@ -30,9 +30,9 @@ import {
 import type { Node, NodeTypes } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import dagre from '@dagrejs/dagre'
-import type { GraphData, GraphNode, GraphEdge, EvidenceNodeMetadata } from '@factagora/types'
+import type { GraphData, GraphNode, GraphEdge } from '@factagora/types'
 import { EvidenceGraphNode } from './EvidenceGraphNode'
-import { getEvidenceNodeHex, AGENT_POSITION_HEX, DEFAULT_EVIDENCE_NODE_HEX } from './evidenceGraphStyles'
+import { getNodeHex } from './graphStyles'
 
 const nodeTypes: NodeTypes = {
   evidenceNode: EvidenceGraphNode,
@@ -60,11 +60,6 @@ function getEvidenceLayout(
 
   dagre.layout(g)
 
-  /** 에이전트 노드의 엣지 색상은 포지션에 따라 결정 */
-  const nodeMetaMap = new Map(
-    nodes.map((n) => [n.id, n.metadata as EvidenceNodeMetadata | null])
-  )
-
   const layoutedNodes: Node[] = nodes.map((node) => {
     const pos = g.node(node.id)
     return {
@@ -79,16 +74,9 @@ function getEvidenceLayout(
   })
 
   const layoutedEdges: import('@xyflow/react').Edge[] = edges.map((edge, i) => {
-    const sourceMeta = nodeMetaMap.get(edge.source)
-    let hex: string
-
-    if (sourceMeta?.nodeRole === 'agent' && sourceMeta.position) {
-      hex = AGENT_POSITION_HEX[sourceMeta.position.toUpperCase()] ?? DEFAULT_EVIDENCE_NODE_HEX
-    } else {
-      hex = getEvidenceNodeHex(
-        sourceMeta?.nodeRole ?? nodes.find((n) => n.id === edge.source)?.type ?? 'evidence'
-      )
-    }
+    // graphStyles.ts 사용 (통일된 색상)
+    const sourceNode = nodes.find((n) => n.id === edge.source)
+    const hex = getNodeHex(sourceNode?.type ?? 'evidence')
 
     return {
       id: `e-${edge.source}-${edge.target}-${i}`,
