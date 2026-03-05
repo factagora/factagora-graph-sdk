@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { GraphPanel } from './GraphPanel'
-import { mockDGGraphData, mockTKGGraphData, mockSimpleDGGraph, mockArgumentMapGraph } from '../__mocks__/mockData'
+import { mockDGGraphData, mockTKGGraphData, mockArgumentMapGraph, mockEvidenceGraphData } from '../__mocks__/mockData'
 import '@xyflow/react/dist/style.css'
 
 const meta: Meta<typeof GraphPanel> = {
@@ -36,6 +36,7 @@ type Story = StoryObj<typeof GraphPanel>
 /**
  * DG (Document Graph) - 기본 트리 구조
  * dagre LR 레이아웃으로 자동 배치
+ * theme, hideHeader는 Controls에서 조절 가능
  */
 export const DocumentGraph: Story = {
   args: {
@@ -43,48 +44,30 @@ export const DocumentGraph: Story = {
     theme: 'light',
     hideHeader: false,
     className: 'h-full',
+    onNodeClick: (node, graphData) => {
+      console.log('Node clicked:', node.label)
+      console.log('Graph data:', graphData)
+    },
+    onNodeHover: (nodeId) => {
+      console.log('Node hovered:', nodeId)
+    },
+    onNodeSelect: (nodeId) => {
+      console.log('Node selected:', nodeId)
+    },
   },
   parameters: {
     docs: {
       description: {
-        story: 'Document Graph는 TreeGraph를 사용하여 트리 구조로 렌더링됩니다. dagre LR 레이아웃으로 자동 배치됩니다.',
+        story: 'Document Graph는 TreeGraph를 사용하여 트리 구조로 렌더링됩니다. dagre LR 레이아웃으로 자동 배치됩니다. Controls에서 theme과 hideHeader를 조절할 수 있습니다.',
       },
     },
   },
 }
 
 /**
- * DG - Dark Theme
- */
-export const DocumentGraphDark: Story = {
-  args: {
-    graphData: mockDGGraphData,
-    theme: 'dark',
-    hideHeader: false,
-    className: 'h-full',
-  },
-  parameters: {
-    backgrounds: {
-      default: 'dark',
-    },
-  },
-}
-
-/**
- * DG - No Header
- */
-export const DocumentGraphNoHeader: Story = {
-  args: {
-    graphData: mockDGGraphData,
-    theme: 'light',
-    hideHeader: true,
-    className: 'h-full',
-  },
-}
-
-/**
  * TKG (Temporal Knowledge Graph) - 멀티홉 ForceGraph
  * Canvas 기반 force-directed 레이아웃
+ * theme, hideHeader는 Controls에서 조절 가능
  */
 export const TemporalKnowledgeGraph: Story = {
   args: {
@@ -103,74 +86,9 @@ export const TemporalKnowledgeGraph: Story = {
 }
 
 /**
- * TKG - Dark Theme
- */
-export const TemporalKnowledgeGraphDark: Story = {
-  args: {
-    graphData: mockTKGGraphData,
-    theme: 'dark',
-    hideHeader: false,
-    className: 'h-full',
-  },
-  parameters: {
-    backgrounds: {
-      default: 'dark',
-    },
-  },
-}
-
-/**
- * Simple DG - 최소 구조
- */
-export const SimpleGraph: Story = {
-  args: {
-    graphData: mockSimpleDGGraph,
-    theme: 'light',
-    hideHeader: false,
-    className: 'h-full',
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: '간단한 3개 노드 그래프로 기본 구조를 확인할 수 있습니다.',
-      },
-    },
-  },
-}
-
-/**
- * With Interactions - 노드 클릭 및 hover 이벤트
- */
-export const WithInteractions: Story = {
-  args: {
-    graphData: mockDGGraphData,
-    theme: 'light',
-    hideHeader: false,
-    className: 'h-full',
-    onNodeClick: (node, graphData) => {
-      console.log('Node clicked:', node.label)
-      console.log('Graph data:', graphData)
-      alert(`Clicked: ${node.label}`)
-    },
-    onNodeHover: (nodeId) => {
-      console.log('Node hovered:', nodeId)
-    },
-    onNodeSelect: (nodeId) => {
-      console.log('Node selected:', nodeId)
-    },
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: '노드를 클릭하면 alert가 표시되고 콘솔에 로그가 출력됩니다. hover 시에도 콘솔에 로그가 출력됩니다.',
-      },
-    },
-  },
-}
-
-/**
  * Argument Map - 주장 검증 그래프
  * Claim 노드들과 SUPPORTS/CONTRADICTS/QUALIFIES 관계 시각화
+ * theme, hideHeader는 Controls에서 조절 가능
  */
 export const ArgumentMap: Story = {
   args: {
@@ -189,18 +107,22 @@ export const ArgumentMap: Story = {
 }
 
 /**
- * Argument Map - Dark Theme
+ * Evidence Graph - Claim과 Agent 노드
+ * Claim 노드와 여러 Agent 노드들이 PROVIDES_EVIDENCE 관계로 연결
+ * theme, hideHeader는 Controls에서 조절 가능
  */
-export const ArgumentMapDark: Story = {
+export const EvidenceGraph: Story = {
   args: {
-    graphData: mockArgumentMapGraph,
-    theme: 'dark',
+    graphData: mockEvidenceGraphData,
+    theme: 'light',
     hideHeader: false,
     className: 'h-full',
   },
   parameters: {
-    backgrounds: {
-      default: 'dark',
+    docs: {
+      description: {
+        story: 'Evidence Graph는 Claim 노드와 Agent 노드들의 관계를 시각화합니다. Agent 노드들이 PROVIDES_EVIDENCE 관계로 Claim에 연결됩니다.',
+      },
     },
   },
 }

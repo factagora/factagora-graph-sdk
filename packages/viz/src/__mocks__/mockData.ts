@@ -636,3 +636,112 @@ export const mockArgumentMapGraph: GraphData = {
     allowedRelationshipTypes: ['SUPPORTS', 'CONTRADICTS', 'QUALIFIES', 'DEPENDS_ON'],
   },
 }
+
+/**
+ * Evidence Graph Mock Data
+ * - Claim 노드와 Agent 노드들의 관계
+ * - PROVIDES_EVIDENCE 관계로 연결
+ */
+export const mockEvidenceGraphData: GraphData = {
+  nodes: [
+    {
+      id: 'claim-1',
+      label: 'Claim에 대한 Evidence를 보는 중입니다',
+      type: 'claim',
+      confidence: null,
+      isDirectMatch: true,
+      content: '이것은 Claim 컨텐츠입니다. (보이지 않습니다)',
+      sources: [],
+      tags: [],
+      metadata: null,
+      validationCreatedAt: '2026-03-03T05:33:34.862Z',
+      validationEndedAt: null,
+    },
+    {
+      id: 'agent-1',
+      label: 'agent-web',
+      type: 'agent',
+      confidence: null,
+      isDirectMatch: false,
+      content: 'agent-web content',
+      sources: [],
+      tags: [],
+      metadata: null,
+      validationCreatedAt: '2026-03-03T05:33:34.862Z',
+      validationEndedAt: null,
+    },
+    {
+      id: 'agent-2',
+      label: 'agent-arxiv',
+      type: 'agent',
+      confidence: null,
+      isDirectMatch: false,
+      content: 'agent-arxiv content',
+      sources: [],
+      tags: [],
+      metadata: null,
+      validationCreatedAt: '2026-03-03T05:33:34.862Z',
+      validationEndedAt: null,
+    },
+  ],
+  edges: [
+    {
+      source: 'agent-1',
+      target: 'claim-1',
+      relationship: 'PROVIDES_EVIDENCE',
+      weight: null,
+    },
+    {
+      source: 'agent-2',
+      target: 'claim-1',
+      relationship: 'PROVIDES_EVIDENCE',
+      weight: null,
+    },
+  ],
+  metadata: {
+    graphType: 'evidence',
+    totalNodes: 3,
+    totalEdges: 2,
+    centerType: 'claim',
+    agentCount: 2,
+    evidenceCount: 0,
+    avgConfidence: 0.0,
+  },
+}
+
+/**
+ * Argument Map Root Only Mock Data
+ * - Root Claim 노드 하나만 있는 초기 상태
+ */
+export const mockArgumentMapRootOnly: GraphData = {
+  nodes: [
+    {
+      id: 'root-claim-1',
+      label: '이것은 인간이 생성한 Root claim 입니다',
+      type: 'root_claim',
+      confidence: null,
+      isDirectMatch: true,
+      content: '이것은 Root Claim 컨텐츠입니다. (보이지 않습니다)',
+      sources: [],
+      tags: [],
+      metadata: {
+        origin_type: 'USER_CREATED',
+        verification_status: 'PENDING',
+        verdict: null,
+        verdict_date: null,
+        challenge_count: 0,
+      },
+      validationCreatedAt: '2026-03-03T05:32:28.827Z',
+      validationEndedAt: null,
+    },
+  ],
+  edges: [],
+  metadata: {
+    graphType: 'argument_map',
+    expansionDepth: 0,
+    totalNodes: 1,
+    directMatchCount: 1,
+    expandedCount: 0,
+    allowedRelationshipTypes: ['SUPPORTS', 'CONTRADICTS', 'QUALIFIES', 'DEPENDS_ON'],
+  },
+}

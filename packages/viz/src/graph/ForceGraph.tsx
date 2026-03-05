@@ -33,6 +33,7 @@ import {
   DARK_MODE,
   LIGHT_MODE,
 } from './tkgGraphStyles'
+import { getNodeHex } from './graphStyles'
 
 // ─── Types ──────────────────────────────────────────────────────
 
@@ -167,22 +168,10 @@ export function ForceGraph({
     [onNodeHover]
   )
 
-  // 노드 색상 (타입별)
+  // 노드 색상 (타입별 - graphStyles.ts 사용)
   const nodeColor = useCallback((rawNode: any) => {
     const node = rawNode as ForceNode
-    const type = node.type?.toLowerCase() || ''
-
-    // 타입별 색상
-    if (type === 'entity') {
-      return '#2563eb' // 진한 파란색 (blue-600)
-    } else if (type === 'factblock') {
-      return '#93c5fd' // 연한 파란색 (blue-300)
-    } else if (type === 'discovery') {
-      return '#fbbf24' // 노란색 (amber-400)
-    }
-
-    // 기본 색상 (회색)
-    return '#9ca3af' // gray-400
+    return getNodeHex(node.type)
   }, [])
 
   // 노드 크기 (연결된 엣지 수에 비례)
