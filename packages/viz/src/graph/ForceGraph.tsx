@@ -23,15 +23,13 @@
 
 import { useMemo, useRef, useState, useEffect, useCallback } from 'react'
 import ForceGraph2D from 'react-force-graph-2d'
+import * as d3Force from 'd3-force'
 import type { GraphData, GraphNode, TKGNodeMetadata } from '@factagora/types'
 import {
-  HOP_COLORS,
-  HOP_SIZES,
   HOP_LABELS,
   DISCOVERY_GLOW_COLOR,
   DISCOVERY_GLOW_ALPHA,
   DISCOVERY_GLOW_BLUR,
-  DEFAULT_HOP_COLOR,
   DARK_MODE,
   LIGHT_MODE,
 } from './tkgGraphStyles'
@@ -47,6 +45,7 @@ interface ForceNode {
   isDirectMatch: boolean
   content: string | null
   metadata: TKGNodeMetadata | null
+  type: string
   x?: number
   y?: number
   [key: string]: unknown
@@ -81,6 +80,7 @@ export function ForceGraph({
   const colors = isDark ? DARK_MODE : LIGHT_MODE
 
   const containerRef = useRef<HTMLDivElement>(null)
+  const fgRef = useRef<any>(null)
   const [dimensions, setDimensions] = useState({ width: 600, height: 400 })
 
   // 반응형 크기
@@ -97,6 +97,32 @@ export function ForceGraph({
     return () => observer.disconnect()
   }, [])
 
+  // Force simulation 최적화 (LR 계층 구조 + 라벨 겹침 방지)
+  useEffect(() => {
+    if (!fgRef.current) return
+
+    // link force: 엣지 길이 증가
+    fgRef.current.d3Force('link')?.distance(150)
+
+    // charge force: 노드 간 반발력 증가
+    fgRef.current.d3Force('charge')?.strength(-400)
+
+    // x-force: hop distance에 따라 Left-to-Right 배치 강제
+    fgRef.current.d3Force(
+      'x',
+      d3Force.forceX((node: any) => {
+        const hop = node.metadata?.hopDistance ?? 0
+        return hop * 200  // hop마다 200px 간격
+      }).strength(0.5)  // x 방향 강제력
+    )
+
+    // y-force: 중앙 정렬 (약한 힘)
+    fgRef.current.d3Force('y', d3Force.forceY(0).strength(0.1))
+
+    // 시뮬레이션 재시작
+    fgRef.current.d3ReheatSimulation()
+  }, [graphData])
+
   // SSE nodes/edges → ForceGraph 형식 변환
   const data = useMemo(
     () => ({
@@ -107,6 +133,7 @@ export function ForceGraph({
         isDirectMatch: n.isDirectMatch,
         content: n.content,
         metadata: n.metadata as TKGNodeMetadata | null,
+        type: n.type,
       })),
       links: graphData.edges.map((e) => ({
         source: e.source,
@@ -140,19 +167,43 @@ export function ForceGraph({
     [onNodeHover]
   )
 
-  // 노드 색상 (hop distance별)
+  // 노드 색상 (타입별)
   const nodeColor = useCallback((rawNode: any) => {
     const node = rawNode as ForceNode
-    const hop = node.metadata?.hopDistance ?? 0
-    return HOP_COLORS[hop] ?? DEFAULT_HOP_COLOR
+    const type = node.type?.toLowerCase() || ''
+
+    // 타입별 색상
+    if (type === 'entity') {
+      return '#2563eb' // 진한 파란색 (blue-600)
+    } else if (type === 'factblock') {
+      return '#93c5fd' // 연한 파란색 (blue-300)
+    } else if (type === 'discovery') {
+      return '#fbbf24' // 노란색 (amber-400)
+    }
+
+    // 기본 색상 (회색)
+    return '#9ca3af' // gray-400
   }, [])
 
-  // 노드 크기 (hop distance별)
-  const nodeVal = useCallback((rawNode: any) => {
-    const node = rawNode as ForceNode
-    const hop = node.metadata?.hopDistance ?? 0
-    return HOP_SIZES[hop] ?? 1
-  }, [])
+  // 노드 크기 (연결된 엣지 수에 비례)
+  const nodeVal = useCallback(
+    (rawNode: any) => {
+      const node = rawNode as ForceNode
+      // 이 노드와 연결된 엣지 수 계산 (degree centrality)
+      const degree = data.links.filter((link) => {
+        const source = link.source as string | ForceNode
+        const target = link.target as string | ForceNode
+        const sourceId = typeof source === 'string' ? source : source.id
+        const targetId = typeof target === 'string' ? target : target.id
+        return sourceId === node.id || targetId === node.id
+      }).length
+
+      // degree에 비례하는 크기 (최소 4, degree당 3 추가, 최대 30)
+      const size = Math.max(4, Math.min(4 + degree * 3, 30))
+      return size
+    },
+    [data.links]
+  )
 
   // 노드 툴팁
   const nodeLabel = useCallback((rawNode: any) => {
@@ -217,9 +268,65 @@ export function ForceGraph({
     [hoveredNodeId]
   )
 
+  // 엣지 라벨 그리기 (항상 표시, 겹침 방지를 위한 오프셋)
+  const linkCanvasObject = useCallback(
+    (rawLink: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
+      const link = rawLink as ForceLink
+      const source = typeof link.source === 'object' ? link.source : null
+      const target = typeof link.target === 'object' ? link.target : null
+
+      if (!source || !target || source.x == null || target.x == null || source.y == null || target.y == null) {
+        return
+      }
+
+      // 엣지 중간 지점 계산
+      const midX = (source.x + target.x) / 2
+      const midY = (source.y + target.y) / 2
+
+      // 엣지 각도 계산 (라벨 오프셋 방향 결정)
+      const dx = target.x - source.x
+      const dy = target.y - source.y
+      const angle = Math.atan2(dy, dx)
+
+      // 라벨을 엣지에서 약간 떨어뜨려서 겹침 방지
+      const offsetDistance = 15 / globalScale
+      const offsetX = -Math.sin(angle) * offsetDistance
+      const offsetY = Math.cos(angle) * offsetDistance
+
+      const labelX = midX + offsetX
+      const labelY = midY + offsetY
+
+      // 라벨 텍스트
+      const text = link.relationship.replace(/_/g, ' ')
+      const fontSize = 11 / globalScale
+      ctx.font = `${fontSize}px "Courier New", monospace`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+
+      // 텍스트 크기 측정
+      const textWidth = ctx.measureText(text).width
+      const padding = 5 / globalScale
+
+      // 배경 그리기 (약간 더 투명하게)
+      ctx.fillStyle = isDark ? 'rgba(0, 0, 0, 0.75)' : 'rgba(255, 255, 255, 0.85)'
+      ctx.fillRect(
+        labelX - textWidth / 2 - padding,
+        labelY - fontSize / 2 - padding / 2,
+        textWidth + padding * 2,
+        fontSize + padding
+      )
+
+      // 텍스트 그리기
+      ctx.fillStyle = isDark ? '#ffffff' : '#374151'
+      ctx.fillText(text, labelX, labelY)
+    },
+    [isDark]
+  )
+
   return (
     <div ref={containerRef} className="w-full">
       <ForceGraph2D
+        ref={fgRef}
         graphData={data}
         width={dimensions.width}
         height={dimensions.height}
@@ -234,9 +341,14 @@ export function ForceGraph({
         linkLabel={linkLabel}
         linkWidth={linkWidth}
         linkColor={linkColor}
+        linkCanvasObjectMode={() => 'after'}
+        linkCanvasObject={linkCanvasObject}
         linkDirectionalArrowLength={4}
         linkDirectionalArrowRelPos={0.8}
-        cooldownTicks={100}
+        d3AlphaDecay={0.02}        // 시뮬레이션 안정화 속도 (기본값: 0.0228)
+        d3VelocityDecay={0.3}      // 노드 움직임 감속 (기본값: 0.4)
+        warmupTicks={100}          // 초기 시뮬레이션 틱 (더 나은 배치)
+        cooldownTicks={100}        // 안정화 시뮬레이션 틱
         enableZoomInteraction
         enablePanInteraction
       />

@@ -43,6 +43,8 @@ export interface TreeGraphProps {
   hoveredNodeId?: string | null
   onNodeSelect?: (nodeId: string) => void
   onNodeHover?: (nodeId: string | null) => void
+  nodesDraggable?: boolean
+  fontFamily?: string
 }
 
 export function TreeGraph({
@@ -51,6 +53,8 @@ export function TreeGraph({
   hoveredNodeId,
   onNodeSelect,
   onNodeHover,
+  nodesDraggable = false,
+  fontFamily,
 }: TreeGraphProps) {
   const reactFlowInstance = useReactFlow()
 
@@ -69,9 +73,10 @@ export function TreeGraph({
           node: node.data as unknown as GraphNode,
           isHovered: node.id === hoveredNodeId,
           isSelected: node.id === selectedNodeId,
+          fontFamily,
         },
       })),
-    [layouted.nodes, hoveredNodeId, selectedNodeId]
+    [layouted.nodes, hoveredNodeId, selectedNodeId, fontFamily]
   )
 
   const [nodes, setNodes, onNodesChange] = useNodesState(nodesWithState)
@@ -141,9 +146,9 @@ export function TreeGraph({
       fitView
       fitViewOptions={{ padding: 0.3 }}
       // 읽기 전용 설정
-      nodesDraggable={false}
+      nodesDraggable={nodesDraggable}
       nodesConnectable={false}
-      elementsSelectable={false}
+      elementsSelectable={nodesDraggable}
       panOnDrag
       zoomOnScroll
       zoomOnPinch

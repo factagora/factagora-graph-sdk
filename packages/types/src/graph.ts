@@ -38,8 +38,8 @@ export interface GraphNode {
   /** 태그 목록 */
   tags: string[]
 
-  /** 추가 메타데이터 (TKG: TKGNodeMetadata, Evidence: EvidenceNodeMetadata) */
-  metadata: TKGNodeMetadata | EvidenceNodeMetadata | Record<string, unknown> | null
+  /** 추가 메타데이터 (TKG: TKGNodeMetadata, Evidence: EvidenceNodeMetadata, ArgumentMap: ArgumentMapNodeMetadata) */
+  metadata: TKGNodeMetadata | EvidenceNodeMetadata | ArgumentMapNodeMetadata | Record<string, unknown> | null
 
   /** 검증 시작 시점 (ISO 8601) */
   validationCreatedAt: string | null
@@ -191,10 +191,78 @@ export interface EvidenceGraphMetadata {
   avgConfidence: number
 }
 
+// ─── Argument Map (논증 맵) 메타데이터 ─────────────────
+
+/** Argument Map 노드 메타데이터 */
+export interface ArgumentMapNodeMetadata {
+  /** 노드 역할 */
+  nodeRole: 'root_claim' | 'sub_claim'
+
+  /** 판정 (TRUE, FALSE, PARTIALLY_TRUE, UNVERIFIED, MISLEADING, null) */
+  verdict?: string | null
+
+  /** 검증 상태 (PENDING, VERIFIED_TRUE, VERIFIED_FALSE, PARTIALLY_TRUE, MISLEADING, UNVERIFIABLE) */
+  verificationStatus?: string | null
+
+  /** 검증 신뢰도 (0.0 ~ 1.0) */
+  verificationConfidence?: number | null
+
+  /** 생성 유형 (USER_CREATED, AGENT_DERIVED) */
+  originType?: string | null
+
+  /** Challenge 횟수 (verdict가 리셋된 횟수) */
+  challengeCount?: number
+
+  /** 카테고리 */
+  category?: string | null
+
+  /** 원본 argument ID (AGENT_DERIVED인 경우) */
+  sourceArgumentId?: string | null
+
+  /** 생성한 agent ID */
+  createdByAgentId?: string | null
+
+  /** Agent 이름 */
+  agentName?: string | null
+
+  /** Agent 아바타 URL */
+  agentAvatarUrl?: string | null
+}
+
+/** Argument Map 그래프 메타데이터 */
+export interface ArgumentMapGraphMetadata {
+  /** 그래프 타입 식별자 */
+  graphType: 'argument_map'
+
+  /** 총 노드 수 */
+  totalNodes: number
+
+  /** 총 엣지 수 */
+  totalEdges: number
+
+  /** 루트 claim ID */
+  rootClaimId: string
+
+  /** 최대 깊이 */
+  maxDepth: number
+
+  /** Edge type별 개수 */
+  edgeTypeDistribution: Record<string, number>
+
+  /** Verdict별 노드 개수 */
+  verdictDistribution: Record<string, number>
+
+  /** Agent-derived sub-claim 수 */
+  agentDerivedCount: number
+
+  /** User-created claim 수 */
+  userCreatedCount: number
+}
+
 // ─── 유니온 타입 및 타입 가드 ──────────────────────────────────
 
-/** 그래프 메타데이터 (DG, TKG 또는 Evidence) */
-export type GraphMetadata = DGGraphMetadata | TKGGraphMetadata | EvidenceGraphMetadata
+/** 그래프 메타데이터 (DG, TKG, Evidence 또는 ArgumentMap) */
+export type GraphMetadata = DGGraphMetadata | TKGGraphMetadata | EvidenceGraphMetadata | ArgumentMapGraphMetadata
 
 /** TKG 그래프 메타데이터 타입 가드 */
 export function isTKGGraphMetadata(
@@ -208,4 +276,11 @@ export function isEvidenceGraphMetadata(
   metadata: GraphMetadata | null | undefined,
 ): metadata is EvidenceGraphMetadata {
   return !!metadata && 'graphType' in metadata && metadata.graphType === 'evidence'
+}
+
+/** Argument Map 그래프 메타데이터 타입 가드 */
+export function isArgumentMapGraphMetadata(
+  metadata: GraphMetadata | null | undefined,
+): metadata is ArgumentMapGraphMetadata {
+  return !!metadata && 'graphType' in metadata && metadata.graphType === 'argument_map'
 }

@@ -1,12 +1,13 @@
 /**
- * GraphPanel — DG/TKG/Evidence 그래프 자동 분기 컨테이너
+ * GraphPanel — DG/TKG/Evidence/ArgumentMap 그래프 자동 분기 컨테이너
  *
  * metadata.graphType에 따라 자동 렌더링:
  * - "multihop_tkg" → ForceGraph
  * - "evidence" → EvidenceTreeGraph
+ * - "argument_map" → ArgumentMapGraph
  * - 그 외 → TreeGraph (DG 기본)
  *
- * 모바일에서 collapse 가능, 헤더 숨김 옵션 제공.
+ * 헤더 숨김 옵션 제공.
  *
  * @example
  * ```tsx
@@ -18,6 +19,7 @@
  *     dgTitle: "Knowledge Graph",
  *     tkgTitle: "Multi-hop Graph",
  *     evidenceTitle: "Evidence Graph",
+ *     argumentMapTitle: "Argument Map",
  *     nodes: "nodes",
  *     edges: "edges"
  *   }}
@@ -32,22 +34,19 @@
 
 'use client'
 
-import { useState } from 'react'
 import type { GraphData, GraphNode } from '@factagora/types'
 import { ForceGraph } from './ForceGraph'
 import { TreeGraph } from './TreeGraph'
 import { EvidenceTreeGraph } from './EvidenceTreeGraph'
+import { ArgumentMapGraph } from './ArgumentMapGraph'
 import { ReactFlowProvider } from '@xyflow/react'
 
-function cn(...classes: (string | boolean | undefined | null)[]) {
-  return classes.filter(Boolean).join(' ')
-}
-
 /** graphType 판별 */
-function getGraphType(metadata: GraphData['metadata']): 'tkg' | 'evidence' | 'dg' {
+function getGraphType(metadata: GraphData['metadata']): 'tkg' | 'evidence' | 'argument_map' | 'dg' {
   const graphType = (metadata as any)?.graphType
   if (graphType === 'multihop_tkg') return 'tkg'
   if (graphType === 'evidence') return 'evidence'
+  if (graphType === 'argument_map') return 'argument_map'
   return 'dg'
 }
 
@@ -55,6 +54,7 @@ export interface GraphPanelLabels {
   dgTitle?: string
   tkgTitle?: string
   evidenceTitle?: string
+  argumentMapTitle?: string
   nodes?: string
   edges?: string
 }
@@ -65,13 +65,15 @@ export interface GraphPanelProps {
   className?: string
   hideHeader?: boolean
   theme?: 'light' | 'dark'
-  // TreeGraph / EvidenceTreeGraph props
+  // TreeGraph / EvidenceTreeGraph / ArgumentMapGraph props
   selectedNodeId?: string | null
   hoveredNodeId?: string | null
-  onNodeSelect?: (nodeId: string) => void
+  onNodeSelect?: (nodeId: string | null) => void
   onNodeHover?: (nodeId: string | null) => void
   // ForceGraph props
   onNodeClick?: (node: GraphNode, graphData: GraphData) => void
+  // Font customization
+  fontFamily?: string
 }
 
 export function GraphPanel({
@@ -85,15 +87,15 @@ export function GraphPanel({
   onNodeSelect,
   onNodeHover,
   onNodeClick,
+  fontFamily = '"Courier New", Courier, monospace',
 }: GraphPanelProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
-
   const graphType = getGraphType(graphData.metadata)
 
   const defaultLabels: Required<GraphPanelLabels> = {
     dgTitle: labels?.dgTitle ?? 'Knowledge Graph',
     tkgTitle: labels?.tkgTitle ?? 'Multi-hop Graph',
     evidenceTitle: labels?.evidenceTitle ?? 'Evidence Graph',
+    argumentMapTitle: labels?.argumentMapTitle ?? 'Argument Map',
     nodes: labels?.nodes ?? 'nodes',
     edges: labels?.edges ?? 'edges',
   }
@@ -102,90 +104,116 @@ export function GraphPanel({
     ? defaultLabels.tkgTitle
     : graphType === 'evidence'
       ? defaultLabels.evidenceTitle
-      : defaultLabels.dgTitle
+      : graphType === 'argument_map'
+        ? defaultLabels.argumentMapTitle
+        : defaultLabels.dgTitle
 
   const totalNodes = graphData.metadata?.totalNodes ?? graphData.nodes.length
   const totalEdges = (graphData.metadata as any)?.totalEdges ?? graphData.edges.length
 
   const renderHeader = () => (
-    <button
-      type="button"
-      onClick={() => setIsCollapsed((prev) => !prev)}
-      className="flex items-center justify-between w-full px-3 py-1.5 border-b border-border bg-muted/30 md:cursor-default"
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+        padding: '6px 12px',
+        borderBottom: '1px solid #e5e7eb',
+        backgroundColor: 'rgba(249, 250, 251, 0.3)',
+      }}
     >
-      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+      <span
+        style={{
+          fontSize: '10px',
+          fontWeight: 600,
+          color: '#6b7280',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+        }}
+      >
         {title}
       </span>
-      <div className="flex items-center gap-2">
-        <span className="text-[10px] text-muted-foreground tabular-nums">
-          {totalNodes} {defaultLabels.nodes}
-          {totalEdges > 0 && ` · ${totalEdges} ${defaultLabels.edges}`}
-        </span>
-        <span className="md:hidden text-muted-foreground">
-          {isCollapsed ? (
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          ) : (
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-            </svg>
-          )}
-        </span>
-      </div>
-    </button>
+      <span
+        style={{
+          fontSize: '10px',
+          color: '#6b7280',
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
+        {totalNodes} {defaultLabels.nodes}
+        {totalEdges > 0 && ` · ${totalEdges} ${defaultLabels.edges}`}
+      </span>
+    </div>
   )
 
-  const contentClassName = hideHeader ? 'h-full' : 'h-[calc(100%-28px)]'
+  const contentStyle: React.CSSProperties = hideHeader
+    ? { height: '100%' }
+    : { height: 'calc(100% - 28px)' }
+
+  const containerStyle: React.CSSProperties = {
+    position: 'relative',
+    overflow: 'hidden',
+    height: '100%',
+    ...(!hideHeader && {
+      borderRadius: '12px',
+      border: '1px solid #e5e7eb',
+      backgroundColor: '#ffffff',
+    }),
+  }
 
   return (
-    <div
-      className={cn(
-        'relative overflow-hidden',
-        !hideHeader && 'rounded-xl border border-border bg-card',
-        isCollapsed && 'h-auto',
-        className,
-      )}
-    >
+    <div className={className} style={containerStyle}>
       {!hideHeader && renderHeader()}
 
-      {(hideHeader || !isCollapsed) && (
-        <div className={contentClassName}>
-          {graphType === 'tkg' && (
-            <ForceGraph
+      <div style={contentStyle}>
+        {graphType === 'tkg' && (
+          <ForceGraph
+            graphData={graphData}
+            theme={theme}
+            onNodeClick={onNodeClick}
+            onNodeHover={onNodeHover}
+            hoveredNodeId={hoveredNodeId}
+          />
+        )}
+
+        {graphType === 'evidence' && (
+          <ReactFlowProvider>
+            <EvidenceTreeGraph
               graphData={graphData}
-              theme={theme}
-              onNodeClick={onNodeClick}
-              onNodeHover={onNodeHover}
+              selectedNodeId={selectedNodeId}
               hoveredNodeId={hoveredNodeId}
+              onNodeSelect={onNodeSelect}
+              onNodeHover={onNodeHover}
             />
-          )}
+          </ReactFlowProvider>
+        )}
 
-          {graphType === 'evidence' && (
-            <ReactFlowProvider>
-              <EvidenceTreeGraph
-                graphData={graphData}
-                selectedNodeId={selectedNodeId}
-                hoveredNodeId={hoveredNodeId}
-                onNodeSelect={onNodeSelect}
-                onNodeHover={onNodeHover}
-              />
-            </ReactFlowProvider>
-          )}
+        {graphType === 'argument_map' && (
+          <ReactFlowProvider>
+            <ArgumentMapGraph
+              graphData={graphData}
+              selectedNodeId={selectedNodeId}
+              hoveredNodeId={hoveredNodeId}
+              onNodeSelect={onNodeSelect}
+              onNodeHover={onNodeHover}
+            />
+          </ReactFlowProvider>
+        )}
 
-          {graphType === 'dg' && (
-            <ReactFlowProvider>
-              <TreeGraph
-                graphData={graphData}
-                selectedNodeId={selectedNodeId}
-                hoveredNodeId={hoveredNodeId}
-                onNodeSelect={onNodeSelect}
-                onNodeHover={onNodeHover}
-              />
-            </ReactFlowProvider>
-          )}
-        </div>
-      )}
+        {graphType === 'dg' && (
+          <ReactFlowProvider>
+            <TreeGraph
+              graphData={graphData}
+              selectedNodeId={selectedNodeId}
+              hoveredNodeId={hoveredNodeId}
+              onNodeSelect={onNodeSelect}
+              onNodeHover={onNodeHover}
+              fontFamily={fontFamily}
+            />
+          </ReactFlowProvider>
+        )}
+      </div>
     </div>
   )
 }

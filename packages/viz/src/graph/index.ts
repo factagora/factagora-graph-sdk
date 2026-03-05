@@ -1,12 +1,13 @@
 /**
  * @factagora/viz/graph
  *
- * 그래프 시각화 컴포넌트 (DG + TKG + Evidence)
+ * 그래프 시각화 컴포넌트 (DG + TKG + Evidence + ArgumentMap)
  *
  * - ForceGraph: react-force-graph-2d 기반 TKG 그래프
  * - TreeGraph: @xyflow/react 기반 DG 그래프
  * - EvidenceTreeGraph: @xyflow/react 기반 Evidence 그래프
- * - GraphPanel: DG/TKG/Evidence 자동 분기 컴포넌트
+ * - ArgumentMapGraph: @xyflow/react 기반 Argument Map 그래프
+ * - GraphPanel: DG/TKG/Evidence/ArgumentMap 자동 분기 컴포넌트
  * - NodeDetailPanel: 노드 상세 정보 패널
  */
 
@@ -17,6 +18,8 @@ export { TreeGraph } from './TreeGraph'
 export type { TreeGraphProps } from './TreeGraph'
 export { EvidenceTreeGraph } from './EvidenceTreeGraph'
 export type { EvidenceTreeGraphProps } from './EvidenceTreeGraph'
+export { ArgumentMapGraph } from './ArgumentMapGraph'
+export type { ArgumentMapGraphProps } from './ArgumentMapGraph'
 export { GraphPanel } from './GraphPanel'
 export type { GraphPanelProps, GraphPanelLabels } from './GraphPanel'
 export { NodeDetailPanel } from './NodeDetailPanel'
@@ -27,3 +30,4 @@ export * from './graphStyles'
 export * from './layoutUtils'
 export * from './tkgGraphStyles'
 export * from './evidenceGraphStyles'
+export * from './argumentMapGraphStyles'

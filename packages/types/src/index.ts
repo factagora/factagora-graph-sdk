@@ -22,9 +22,11 @@ export type {
   TKGNodeMetadata,
   EvidenceGraphMetadata,
   EvidenceNodeMetadata,
+  ArgumentMapGraphMetadata,
+  ArgumentMapNodeMetadata,
 } from './graph'
 
-export { isTKGGraphMetadata, isEvidenceGraphMetadata } from './graph'
+export { isTKGGraphMetadata, isEvidenceGraphMetadata, isArgumentMapGraphMetadata } from './graph'
 
 // ─── Timeline 타입 ─────────────────────────────────────────────
 export type {

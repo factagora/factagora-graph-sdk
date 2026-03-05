@@ -1190,8 +1190,11 @@ interface TreeGraphProps {
   hoveredNodeId?: string | null
   onNodeSelect?: (nodeId: string) => void
   onNodeHover?: (nodeId: string | null) => void
+  nodesDraggable?: boolean              // 기본값: false (드래그 비활성화)
 }
 ```
+
+**nodesDraggable**: 노드를 드래그하여 위치를 수동으로 조정할 수 있도록 허용합니다. dagre 레이아웃으로 초기 배치 후 사용자가 원하는 대로 노드를 재배치할 수 있습니다. GraphData가 변경되면 레이아웃이 재계산되어 드래그한 위치는 초기화됩니다.
 
 #### 사용 예시
 
@@ -1209,6 +1212,7 @@ export function MyTreeGraph({ graphData }) {
         hoveredNodeId={hoveredId}
         onNodeSelect={(id) => setSelectedId(id)}
         onNodeHover={(id) => setHoveredId(id)}
+        nodesDraggable={true}           // 노드 드래그 활성화
       />
     </ReactFlowProvider>
   )
