@@ -35,25 +35,39 @@ import {
   Controls,
   type Node,
   type NodeTypes,
+  type EdgeTypes,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import dagre from '@dagrejs/dagre'
 import type { GraphData } from '@factagora/types'
 import { ArgumentMapGraphNode } from './ArgumentMapGraphNode'
-import {
-  getEdgeTypeColor,
-  getEdgeTypeLabel,
-  NODE_WIDTH,
-  NODE_HEIGHT,
-  RANK_SEPARATION,
-  NODE_SEPARATION,
-} from './argumentMapGraphStyles'
+import { ArgumentMapCustomEdge } from './ArgumentMapCustomEdge'
 
 const nodeTypes: NodeTypes = {
   argumentMapNode: ArgumentMapGraphNode,
 }
 
-/** dagre TB 레이아웃 계산 */
+const edgeTypes: EdgeTypes = {
+  custom: ArgumentMapCustomEdge,
+}
+
+// 레이아웃 상수
+const NODE_WIDTH = 220
+const NODE_HEIGHT = 40
+
+// 엣지 타입별 색상 (간단한 매핑)
+const EDGE_TYPE_COLORS: Record<string, string> = {
+  SUPPORTS: '#22c55e',
+  CONTRADICTS: '#ef4444',
+  QUALIFIES: '#eab308',
+  DEPENDS_ON: '#3b82f6',
+  DERIVED_FROM: '#a855f7',
+  SUPERSEDES: '#f97316',
+}
+
+const getEdgeTypeColor = (type: string) => EDGE_TYPE_COLORS[type.toUpperCase()] || '#94a3b8'
+
+/** dagre LR 레이아웃 계산 */
 function getArgumentMapLayout(graphData: GraphData): {
   nodes: Node[]
   edges: import('@xyflow/react').Edge[]
@@ -61,9 +75,9 @@ function getArgumentMapLayout(graphData: GraphData): {
   const g = new dagre.graphlib.Graph()
   g.setDefaultEdgeLabel(() => ({}))
   g.setGraph({
-    rankdir: 'TB', // Top-to-Bottom
-    nodesep: NODE_SEPARATION,
-    ranksep: RANK_SEPARATION,
+    rankdir: 'LR', // Left-to-Right
+    nodesep: 80,
+    ranksep: 120,
     marginx: 20,
     marginy: 20,
   })
@@ -95,26 +109,37 @@ function getArgumentMapLayout(graphData: GraphData): {
     }
   })
 
+  // 각 source별로 엣지 그룹화 (한 점에서 여러 엣지가 나갈 때 겹치지 않게)
+  const sourceEdgeGroups = new Map<string, number>()
+  graphData.edges.forEach((edge) => {
+    const count = sourceEdgeGroups.get(edge.source) || 0
+    sourceEdgeGroups.set(edge.source, count + 1)
+  })
+
+  const sourceEdgeIndex = new Map<string, number>()
+
   const layoutedEdges: import('@xyflow/react').Edge[] = graphData.edges.map((edge, i) => {
     const edgeType = edge.relationship.toUpperCase()
     const color = getEdgeTypeColor(edgeType)
-    const label = getEdgeTypeLabel(edgeType)
+
+    // 같은 source에서 나가는 엣지들의 index 계산
+    const sourceCount = sourceEdgeGroups.get(edge.source) || 1
+    const index = sourceEdgeIndex.get(edge.source) || 0
+    sourceEdgeIndex.set(edge.source, index + 1)
 
     return {
       id: `e-${edge.source}-${edge.target}-${i}`,
       source: edge.source,
       target: edge.target,
-      label,
-      type: 'smoothstep',
+      type: 'custom',
+      data: {
+        index,
+        total: sourceCount,
+      },
       animated: false,
       style: {
         stroke: color,
         strokeWidth: 2,
-      },
-      labelStyle: {
-        fontSize: 11,
-        fontWeight: 600,
-        fill: color,
       },
       markerEnd: {
         type: 'arrowclosed',
@@ -179,6 +204,7 @@ export function ArgumentMapGraph({
       nodes={nodes}
       edges={edges}
       nodeTypes={nodeTypes}
+      edgeTypes={edgeTypes}
       onNodeClick={handleNodeClick}
       onNodeMouseEnter={handleNodeMouseEnter}
       onNodeMouseLeave={handleNodeMouseLeave}
@@ -187,7 +213,7 @@ export function ArgumentMapGraph({
       minZoom={0.1}
       maxZoom={2}
       defaultEdgeOptions={{
-        type: 'smoothstep',
+        type: 'custom',
       }}
     >
       <Background />
